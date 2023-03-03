@@ -1,0 +1,86 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.tencent.shadow.plugin'
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+    defaultConfig {
+        applicationId "com.hao.app.plugin"
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionCode 1000
+        versionName "1.0.00"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
+    }
+
+    //必须插件applicationId设置为和宿主相同
+    productFlavors {
+        plugin {
+            applicationId "com.hao.shadowproject"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    dataBinding {
+        enabled = true
+    }
+
+}
+
+dependencies {
+    pluginCompileOnly project(":app-bridge-lib")
+    normalImplementation project(":app-bridge-lib")
+
+    //Shadow Transform后业务代码会有一部分实际引用runtime中的类
+    //如果不以compileOnly方式依赖，会导致其他Transform或者Proguard找不到这些类
+    pluginCompileOnly "com.tencent.shadow.core:runtime:$shadow_version"
+}
+
+shadow {
+    packagePlugin {
+        pluginTypes {
+            debug {
+                loaderApkConfig = new Tuple2('shadow-loader-debug.apk', ':shadow-loader:assembleDebug')
+                runtimeApkConfig = new Tuple2('shadow-runtime-debug.apk', ':shadow-runtime:assembleDebug')
+                pluginApks {
+                    pluginApk1 {
+                        businessName = 'plugin-app'
+                        //businessName相同的插件，context获取的Dir是相同的。businessName留空，表示和宿主相同业务，直接使用宿主的Dir。
+                        partKey = 'plugin-app'
+                        buildTask = 'assemblePluginDebug'
+                        apkName = 'plugin-app-plugin-debug.apk'
+                        hostWhiteList = ["com.hao.app_bridge_lib"]
+                        apkPath = 'plugin-module/plugin-app/build/outputs/apk/plugin/debug/plugin-app-plugin-debug.apk'
+                    }
+                }
+            }
+//            release {
+//                loaderApkConfig = new Tuple2('shadow-loader-release.apk', ':shadow-loader:assembleRelease')
+//                runtimeApkConfig = new Tuple2('shadow-runtime-release.apk', ':shadow-runtime:assembleRelease')
+//                pluginApks {
+//                    pluginApk1 {
+//                        businessName = 'demo'
+//                        partKey = 'app-plugin'
+//                        buildTask = 'assemblePluginRelease'
+//                        apkName = 'plugin-app-plugin-release.apk'
+//                        apkPath = 'plugin-app/build/outputs/apk/plugin/release/plugin-app-plugin-release.apk'
+//                    }
+//                }
+//            }
+        }
+
+        loaderApkProjectPath = 'shadow/shadow-loader'
+        runtimeApkProjectPath = 'shadow/shadow-runtime'
+
+        version = 1001
+        compactVersion = [1000]
+        uuidNickName = "1.0.1"
+    }
+}
