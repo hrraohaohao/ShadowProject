@@ -1,0 +1,47 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.tencent.shadow.sample.introduce_shadow_lib">
+
+    <application>
+        <service
+            android:name=".MainPluginProcessService"
+            android:process=":plugin" />
+
+        <!--container 注册
+          注意configChanges需要全注册
+          theme需要注册成透明
+
+          这些类不打包在host中，打包在runtime中，以便减少宿主方法数增量
+          -->
+        <activity
+            android:name="com.tencent.shadow.sample.runtime.PluginDefaultProxyActivity"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
+            android:hardwareAccelerated="true"
+            android:launchMode="standard"
+            android:process=":plugin"
+            android:screenOrientation="portrait"
+            android:theme="@style/PluginContainerActivity" />
+
+        <activity
+            android:name="com.tencent.shadow.sample.runtime.PluginSingleInstance1ProxyActivity"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleInstance"
+            android:process=":plugin"
+            android:screenOrientation="portrait"
+            android:theme="@style/PluginContainerActivity" />
+
+        <activity
+            android:name="com.tencent.shadow.sample.runtime.PluginSingleTask1ProxyActivity"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
+            android:process=":plugin"
+            android:screenOrientation="portrait"
+            android:theme="@style/PluginContainerActivity" />
+
+        <provider
+            android:name="com.tencent.shadow.core.runtime.container.PluginContainerContentProvider"
+            android:authorities="${applicationId}.container.PluginContainerContentProvider" />
+        <!--container 注册 end -->
+    </application>
+</manifest>

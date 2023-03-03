@@ -5,12 +5,59 @@ pluginManagement {
         mavenCentral()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
-        mavenCentral()
+        if (!System.getenv().containsKey("DISABLE_TENCENT_MAVEN_MIRROR")) {
+            maven { url 'https://mirrors.tencent.com/nexus/repository/maven-public/' }
+        } else {
+            google()
+            mavenCentral()
+        }
+        maven { url "https://jitpack.io" }
+        maven { url 'https://maven.google.com' }
+        maven {
+            name = "GitHubPackages"
+            url "https://maven.pkg.github.com/tencent/shadow"
+            //一个只读账号兼容Github Packages暂时不支持匿名下载
+            //https://github.community/t/download-from-github-package-registry-without-authentication/14407
+            credentials {
+                username = 'readonlypat'
+                password = '\u0067hp_s3VOOZnLf1bTyvHWblPfaessrVYyEU4JdNbs'
+            }
+        }
+        mavenLocal()
     }
 }
 rootProject.name = "shadowProject"
-include ':app'
+
+include ':app',':app-bridge-lib',':base-lib'
+includeLib() //shadow 业务初始化库
+includeManager() //插件管理器
+includeShadowLib() //shadow插件库
+includePlugins() //插件包
+
+def includeLib() {
+    include 'introduce-shadow-lib'
+    project(':introduce-shadow-lib').projectDir = file('app/introduce-shadow-lib')
+}
+
+
+def includeManager() {
+    include 'shadow-manager'
+    project(':shadow-manager').projectDir = file('shadow-manager')
+}
+
+def includeShadowLib() {
+    include 'shadow-runtime',
+            'shadow-loader'
+    project(':shadow-runtime').projectDir = file('shadow/shadow-runtime')
+    project(':shadow-loader').projectDir = file('shadow/shadow-loader')
+
+}
+
+def includePlugins() {
+    include 'plugin-app'
+    project(':plugin-app').projectDir = file('plugin-module/plugin-app')
+}

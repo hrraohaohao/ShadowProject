@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace 'com.hao.shadowproject'
-    compileSdk 32
+    compileSdk rootProject.compileSdkVersion
 
     defaultConfig {
         applicationId "com.hao.shadowproject"
-        minSdk 24
-        targetSdk 32
-        versionCode 1
-        versionName "1.0"
+        minSdk rootProject.minSdkVersion
+        targetSdk rootProject.targetSdkVersion
+        versionCode rootProject.VERSION_CODE as int
+        versionName rootProject.VERSION_NAME
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,9 +30,17 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation androidx_appcompat
+    implementation android_material
+    implementation androidx_constraintlayout
+
+    implementation project(':app-bridge-lib') // 插件和宿主 桥接模块（白名单）
+    implementation project(':base-lib') //通用库
+    //shadow
+    implementation project(':introduce-shadow-lib')
+    //如果introduce-shadow-lib发布到Maven，在pom中写明此依赖，宿主就不用写这个依赖了。
+    implementation "com.tencent.shadow.dynamic:host:$shadow_version"
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
